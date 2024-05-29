@@ -15,7 +15,7 @@ public class Main {
 
         palavrasReservadas.put("integer", TipoToken.TIPO_INT);
         palavrasReservadas.put("real", TipoToken.TIPO_REAL);
-        palavrasReservadas.put("boolean", TipoToken.BOOLEAN);
+        palavrasReservadas.put("boolean", TipoToken.TIPO_BOOLEAN);
 
         palavrasReservadas.put(":=", TipoToken.SIMB_ATRIBUICAO);
         palavrasReservadas.put("=", TipoToken.SIMB_ATRIBUICAO);
@@ -31,10 +31,10 @@ public class Main {
         palavrasReservadas.put("do", TipoToken.CMD_REPETICAO);
 
         palavrasReservadas.put("<>", TipoToken.SIMB);
-        palavrasReservadas.put("<", TipoToken.SIMB);
-        palavrasReservadas.put("<=", TipoToken.SIMB);
-        palavrasReservadas.put(">=", TipoToken.SIMB);
-        palavrasReservadas.put(">", TipoToken.SIMB);
+        palavrasReservadas.put("<", TipoToken.SIMB_MENOR_QUE);
+        palavrasReservadas.put("<=", TipoToken.SIMB_MENOR_IGUAL_QUE);
+        palavrasReservadas.put(">=", TipoToken.SIMB_MAIOR_IGUAL_QUE);
+        palavrasReservadas.put(">", TipoToken.SIMB_MAIOR_QUE);
 
         palavrasReservadas.put("+", TipoToken.OPERADOR);
         palavrasReservadas.put("-", TipoToken.OPERADOR);
@@ -46,7 +46,7 @@ public class Main {
         palavrasReservadas.put("or", TipoToken.OPERADOR_LOGICO);
         palavrasReservadas.put("not", TipoToken.OPERADOR_NEGADO);
 
-        var compilador = new Compilador("integer tst = 49; ( ) ", palavrasReservadas);
+        var compilador = new Compilador("integer a := 49;\nboolean tst > 10,7 ( ( ) ", palavrasReservadas);
 
         compilador.start();
     }

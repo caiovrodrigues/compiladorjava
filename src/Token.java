@@ -4,10 +4,24 @@ public class Token {
 
     String nome;
     TipoToken tipoToken;
+    Integer coluna;
 
-    public Token(String nome, TipoToken tipoToken) {
+    public Token(String nome, TipoToken tipoToken, Integer coluna) {
         this.nome = nome;
         this.tipoToken = tipoToken;
+        this.coluna = coluna;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public TipoToken getTipoToken() {
+        return tipoToken;
+    }
+
+    public Integer getColuna() {
+        return coluna;
     }
 
     @Override

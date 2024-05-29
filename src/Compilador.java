@@ -24,19 +24,26 @@ public class Compilador {
                     i++;
                 }
 
-                gerarToken(codigo.substring(comecoPalavra, i));
+                gerarToken(codigo.substring(comecoPalavra, i), i);
             }
             else if(isSimbolo(codigo.charAt(i))){
-                int comecoSimbolo = i;
+                int start = i;
                 while(codigo.charAt(i) != ' '){
                     i++;
                 }
 
-                gerarToken(codigo.substring(comecoSimbolo, i));
+                String substring = codigo.substring(start, i);
+
+                if(palavrasReservadas.containsKey(substring)){
+                    TipoToken tipoToken = palavrasReservadas.get(substring);
+                    tokens.add(new Token(substring, tipoToken, i - start));
+                }else{
+                    tokenErros.add(new TokenError(substring, TipoToken.ERRO, String.format("Coluna[%d] este símbolo não é válido ", start)));
+                }
             }
             else if(isNumero(codigo.charAt(i))){
                 int start = i;
-                while((isNumero(codigo.charAt(i)) || codigo.charAt(i) == ',' || isLetra(codigo.charAt(i))) && !isSimbolo(codigo.charAt(i))){
+                while((isNumero(codigo.charAt(i)) || codigo.charAt(i) == ',' || isLetra(codigo.charAt(i)))){
                     i++;
                 }
 
@@ -59,13 +66,15 @@ public class Compilador {
                 int iVirgula = substring.indexOf(",");
 
                 if(iVirgula == -1){
-                    tokens.add(new Token(substring, TipoToken.NUM_INT));
+                    tokens.add(new Token(substring, TipoToken.NUM_INT, i - start));
                 }
                 else if(isNumero(substring.charAt(substring.length() - 1))){
-                    tokens.add(new Token(substring, TipoToken.NUM_REAL));
+                    tokens.add(new Token(substring, TipoToken.NUM_REAL, i - start));
+                }else{
+                    tokenErros.add(new TokenError(substring, TipoToken.ERRO, String.format("Coluna[%d] número real mal formado ", start)));
                 }
             }
-            i++;
+           i++;
         }
 
         for (Token token : tokens) {
@@ -75,8 +84,10 @@ public class Compilador {
         if(!tokenErros.isEmpty()){
             System.out.println("\nErros");
             tokenErros.forEach(System.out::println);
+        }else{
+            System.out.println("\nSEU CÓDIGO NÃO POSSUI ERROS LÉXICOS");
+            analiseSintatica();
         }
-
     }
 
     public boolean isLetra(char letra){
@@ -94,13 +105,46 @@ public class Compilador {
         return numeros.contains(numero);
     }
 
-    public void gerarToken(String palavra){
+    public void gerarToken(String palavra, Integer coluna){
         if(palavrasReservadas.containsKey(palavra)){
             TipoToken tipoToken = palavrasReservadas.get(palavra);
-            tokens.add(new Token(palavra, tipoToken));
+            tokens.add(new Token(palavra, tipoToken, coluna));
         }else{
             TipoToken tipoToken = palavrasReservadas.get("identificador");
-            tokens.add(new Token(palavra, tipoToken));
+            tokens.add(new Token(palavra, tipoToken, coluna));
+        }
+    }
+
+    public void analiseSintatica(){
+
+        int abrePar = 0;
+        int fechaPar = 0;
+
+        for(int i = 0; i < tokens.size(); i++){
+
+            if(tokens.get(i).getTipoToken().equals(TipoToken.IDENTIFICADOR)){
+
+                if(i == 0){
+                    System.out.printf("ERRO SINTÁTICO NA COLUNA[%d] É NECESSÁRIO INFORMAR O TIPO DO IDENTIFICADOR ANTES DA SUA DECLARAÇÃO!\n", tokens.get(i).getColuna());
+                    break;
+                }
+
+                if(!tokens.get(i - 1).getTipoToken().name().startsWith("TIPO")){
+                    System.out.printf("ERRO SINTÁTICO NA COLUNA[%d] É NECESSÁRIO INFORMAR O TIPO DO IDENTIFICADOR ANTES DA SUA DECLARAÇÃO!\n", tokens.get(i).getColuna());
+                    break;
+                }
+            }
+
+            if(tokens.get(i).getTipoToken().equals(TipoToken.SIMB_ABRE_PAR)){
+                abrePar++;
+            }
+            if(tokens.get(i).getTipoToken().equals(TipoToken.SIMB_FECHA_PAR)){
+                fechaPar++;
+            }
+        }
+
+        if(abrePar != fechaPar){
+            System.out.printf("ERRO SINTÁTICO. A QUANTIDADE DE ABRE PARÊNTESES É DIFERENTE DA DE FECHA PARÊNTESES\n");
         }
     }
 }
