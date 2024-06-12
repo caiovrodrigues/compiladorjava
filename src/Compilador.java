@@ -32,9 +32,12 @@ public class Compilador {
 
                 if (isLetra(linha.charAt(i))) {
                     int comecoPalavra = i;
-                    while (linha.charAt(i) != ' ') {
+                    while(i < linha.length() && isLetra(linha.charAt(i))){
                         i++;
                     }
+//                    while (linha.charAt(i) != ' ' || linha.charAt(i) != ';') {
+//                        i++;
+//                    }
 
                     gerarToken(linha.substring(comecoPalavra, i), i);
                 } else if (isSimbolo(linha.charAt(i))) {
