@@ -2,14 +2,14 @@ import java.util.Objects;
 
 public class Token {
 
-    String nome;
-    TipoToken tipoToken;
-    Integer coluna;
+    private String nome;
+    private TipoToken tipoToken;
+    private Integer index;
 
-    public Token(String nome, TipoToken tipoToken, Integer coluna) {
+    public Token(String nome, TipoToken tipoToken, Integer index) {
         this.nome = nome;
         this.tipoToken = tipoToken;
-        this.coluna = coluna;
+        this.index = index;
     }
 
     public String getNome() {
@@ -20,25 +20,17 @@ public class Token {
         return tipoToken;
     }
 
-    public Integer getColuna() {
-        return coluna;
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
     }
 
     @Override
     public String toString() {
-        return nome + " (" + tipoToken + ")";
+        return String.format("%-10s %-20s %-17s %s", nome, tipoToken, tipoToken.getTipo(), Objects.isNull(index) ? "" : index);
     }
 
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        Token token = (Token) object;
-        return Objects.equals(nome, token.nome) && tipoToken == token.tipoToken;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(nome, tipoToken);
-    }
 }

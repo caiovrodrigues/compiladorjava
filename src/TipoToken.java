@@ -1,27 +1,37 @@
 public enum TipoToken {
-    PALAVRA_CHAVE,
-    IDENTIFICADOR,
-    SIMB,
-    SIMB_MENOR_QUE,
-    SIMB_MENOR_IGUAL_QUE,
-    SIMB_MAIOR_IGUAL_QUE,
-    SIMB_MAIOR_QUE,
-    SIMB_ATRIBUICAO,
-    SIMB_ABRE_PAR,
-    SIMB_FECHA_PAR,
-    DECL_VARIAVEL,
-    TIPO_INT,
-    TIPO_REAL,
-    TIPO_BOOLEAN,
-    NUM_INT,
-    NUM_REAL,
-    CMD_CONDICAO,
-    CMD_REPETICAO,
-    OPERADOR,
-    OPERADOR_MULT,
-    OPERADOR_DIV,
-    OPERADOR_LOGICO,
-    OPERADOR_NEGADO,
-    ERRO;
+    PALAVRA_CHAVE("palavra chave"),
+    IDENTIFICADOR("id"),
+    SIMB("símbolo"),
+    SIMB_MENOR_QUE("símbolo especial"),
+    SIMB_MENOR_IGUAL("símbolo especial"),
+    SIMB_MAIOR_IGUAL("símbolo especial"),
+    SIMB_MAIOR_QUE("símbolo especial"),
+    SIMB_ATRIBUICAO("símbolo especial"),
+    SIMB_ABRE_PAR("símbolo especial"),
+    SIMB_FECHA_PAR("símbolo especial"),
+    DECL_VARIAVEL("var"),
+    TIPO_INT("tipo var"),
+    TIPO_REAL("tipo var"),
+    TIPO_BOOLEAN("tipo var"),
+    NUM_INT("num"),
+    NUM_REAL("num"),
+    CMD_CONDICAO("símbolo condição"),
+    CMD_REPETICAO("símbolo condição"),
+    OPERADOR_MAIS("operador aritmético"),
+    OPERADOR_MENOS("operador aritmético"),
+    OPERADOR_MULT("operador aritmético"),
+    OPERADOR_DIV("operador aritmético"),
+    OPERADOR_LOGICO("operador lógico"),
+    OPERADOR_NEGADO("operador lógico"),
+    ERRO("error");
 
+    private String tipo;
+
+    TipoToken(String tipo){
+        this.tipo = tipo;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
 }

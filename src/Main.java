@@ -1,8 +1,27 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 public class Main {
+
+
     public static void main(String[] args) {
+
+        File file = new File("static/codigo.txt");
+
+        StringBuilder sb = new StringBuilder();
+
+        try(Scanner sc = new Scanner(file)){
+            while(sc.hasNext()){
+                sb.append(sc.nextLine()).append("\r\n");
+            }
+//            System.out.println(sb);
+
+        }catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         Map<String, TipoToken> palavrasReservadas = new HashMap<>();
         palavrasReservadas.put("identificador", TipoToken.IDENTIFICADOR);
@@ -32,12 +51,12 @@ public class Main {
 
         palavrasReservadas.put("<>", TipoToken.SIMB);
         palavrasReservadas.put("<", TipoToken.SIMB_MENOR_QUE);
-        palavrasReservadas.put("<=", TipoToken.SIMB_MENOR_IGUAL_QUE);
-        palavrasReservadas.put(">=", TipoToken.SIMB_MAIOR_IGUAL_QUE);
+        palavrasReservadas.put("<=", TipoToken.SIMB_MENOR_IGUAL);
+        palavrasReservadas.put(">=", TipoToken.SIMB_MAIOR_IGUAL);
         palavrasReservadas.put(">", TipoToken.SIMB_MAIOR_QUE);
 
-        palavrasReservadas.put("+", TipoToken.OPERADOR);
-        palavrasReservadas.put("-", TipoToken.OPERADOR);
+        palavrasReservadas.put("+", TipoToken.OPERADOR_MAIS);
+        palavrasReservadas.put("-", TipoToken.OPERADOR_MENOS);
         palavrasReservadas.put("*", TipoToken.OPERADOR_MULT);
         palavrasReservadas.put("/", TipoToken.OPERADOR_DIV);
 
@@ -46,7 +65,7 @@ public class Main {
         palavrasReservadas.put("or", TipoToken.OPERADOR_LOGICO);
         palavrasReservadas.put("not", TipoToken.OPERADOR_NEGADO);
 
-        var compilador = new Compilador("integer a := 49;\nboolean tst > 10,7 ( ( ) ", palavrasReservadas);
+        var compilador = new Compilador(sb.toString(), palavrasReservadas);
 
         compilador.start();
     }

@@ -3,6 +3,7 @@ import java.util.*;
 public class Compilador {
 
     Map<String, TipoToken> palavrasReservadas;
+    Set<TabelaSimbolos> tabelaSimbolos = new HashSet<>();
     List<Token> tokens = new ArrayList<>();
     Set<TokenError> tokenErros = new HashSet<>();
     String codigo;
@@ -16,67 +17,84 @@ public class Compilador {
 
         int i = 0;
 
-        while(i < codigo.length()){
+        String[] linhas = codigo.trim().split("\r\n");
 
-            if(isLetra(codigo.charAt(i))){
-                int comecoPalavra = i;
-                while(codigo.charAt(i) != ' '){
-                    i++;
-                }
+        int length = linhas[0].length();
 
-                gerarToken(codigo.substring(comecoPalavra, i), i);
-            }
-            else if(isSimbolo(codigo.charAt(i))){
-                int start = i;
-                while(codigo.charAt(i) != ' '){
-                    i++;
-                }
+//        System.out.println(length);
+        int linhaPos = 0;
 
-                String substring = codigo.substring(start, i);
+        for (String linha : linhas) {
+            linhaPos++;
 
-                if(palavrasReservadas.containsKey(substring)){
-                    TipoToken tipoToken = palavrasReservadas.get(substring);
-                    tokens.add(new Token(substring, tipoToken, i - start));
-                }else{
-                    tokenErros.add(new TokenError(substring, TipoToken.ERRO, String.format("Coluna[%d] este símbolo não é válido ", start)));
-                }
-            }
-            else if(isNumero(codigo.charAt(i))){
-                int start = i;
-                while((isNumero(codigo.charAt(i)) || codigo.charAt(i) == ',' || isLetra(codigo.charAt(i)))){
-                    i++;
-                }
+            i = 0;
+            while (i < linha.length()) {
 
-                String substring = codigo.substring(start, i);
+                if (isLetra(linha.charAt(i))) {
+                    int comecoPalavra = i;
+                    while (linha.charAt(i) != ' ') {
+                        i++;
+                    }
 
-                List<Character> letras = new ArrayList<>(Arrays.asList('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'));
+                    gerarToken(linha.substring(comecoPalavra, i), i);
+                } else if (isSimbolo(linha.charAt(i))) {
+                    int start = i;
+                    while (linha.charAt(i) != ' ') {
+                        i++;
+                    }
 
-                boolean sair = false;
-                for(int k = 1; k < substring.length(); k++){
-                    if(letras.contains(substring.charAt(k))){
-                        tokenErros.add(new TokenError(substring, TipoToken.ERRO, String.format("Coluna[%d] identificador mal formado ", start)));
-                        sair = true;
+                    String substring = linha.substring(start, i);
+
+                    if (palavrasReservadas.containsKey(substring)) {
+                        TipoToken tipoToken = palavrasReservadas.get(substring);
+                        tokens.add(new Token(substring, tipoToken, null));
+                    } else {
+                        tokenErros.add(new TokenError(substring, TipoToken.ERRO, String.format("Linha [%d] Coluna[%d] este símbolo não é válido ", linhaPos, start)));
+                    }
+                } else if (isNumero(linha.charAt(i))) {
+                    int start = i;
+                    while (i < linha.length() && (isNumero(linha.charAt(i)) || linha.charAt(i) == '.' || isLetra(linha.charAt(i)))) {
+                        i++;
+                    }
+
+                    String substring = linha.substring(start, i);
+
+                    List<Character> letras = new ArrayList<>(Arrays.asList('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'));
+
+                    boolean sair = false;
+                    for (int k = 1; k < substring.length(); k++) {
+                        if (letras.contains(substring.charAt(k))) {
+                            tokenErros.add(new TokenError(substring, TipoToken.ERRO, String.format("Linha [%d] Coluna[%d] identificador mal formado ", linhaPos, start)));
+                            sair = true;
+                        }
+                    }
+
+                    if (sair) {
+                        continue;
+                    }
+
+                    int iVirgula = substring.indexOf(".");
+
+                    if (iVirgula == -1) {
+                        tokens.add(new Token(substring, TipoToken.NUM_INT, null));
+                    } else if (isNumero(substring.charAt(substring.length() - 1))) {
+                        tokens.add(new Token(substring, TipoToken.NUM_REAL, null));
+                    } else {
+                        tokenErros.add(new TokenError(substring, TipoToken.ERRO, String.format("Linha [%d] Coluna[%d] número real mal formado ", linhaPos, start)));
                     }
                 }
-
-                if(sair){
-                    continue;
-                }
-
-                int iVirgula = substring.indexOf(",");
-
-                if(iVirgula == -1){
-                    tokens.add(new Token(substring, TipoToken.NUM_INT, i - start));
-                }
-                else if(isNumero(substring.charAt(substring.length() - 1))){
-                    tokens.add(new Token(substring, TipoToken.NUM_REAL, i - start));
-                }else{
-                    tokenErros.add(new TokenError(substring, TipoToken.ERRO, String.format("Coluna[%d] número real mal formado ", start)));
-                }
+                i++;
             }
-           i++;
         }
 
+        System.out.println("------------ TABELA DE SÍMBOLOS ------------");
+        System.out.printf("%-10s %-20s\n", "(INDEX)", "(VALOR)");
+        for (TabelaSimbolos simbolos : tabelaSimbolos) {
+            System.out.println(simbolos);
+        }
+
+        System.out.println("\n------------ LISTA DE TOKENS ------------");
+        System.out.printf("%-10s %-20s %-17s %s\n", "(CADEIA)", "(TOKEN)", "(TIPO)", "(INDEX)");
         for (Token token : tokens) {
             System.out.println(token);
         }
@@ -106,13 +124,22 @@ public class Compilador {
     }
 
     public void gerarToken(String palavra, Integer coluna){
+        Optional<TabelaSimbolos> tabSimb = tabelaSimbolos.stream().filter(simb -> simb.getValor().equals(palavra)).findFirst();
+
         if(palavrasReservadas.containsKey(palavra)){
             TipoToken tipoToken = palavrasReservadas.get(palavra);
-            tokens.add(new Token(palavra, tipoToken, coluna));
+            tokens.add(new Token(palavra, tipoToken, null));
         }else{
             TipoToken tipoToken = palavrasReservadas.get("identificador");
-            tokens.add(new Token(palavra, tipoToken, coluna));
+            if(tabSimb.isPresent()){
+                tokens.add(new Token(palavra, tipoToken, tabSimb.get().getIndex()));
+            }else{
+                TabelaSimbolos newSimbolo = new TabelaSimbolos(palavra);
+                tokens.add(new Token(palavra, tipoToken, newSimbolo.getIndex()));
+                tabelaSimbolos.add(newSimbolo);
+            }
         }
+
     }
 
     public void analiseSintatica(){
@@ -125,12 +152,12 @@ public class Compilador {
             if(tokens.get(i).getTipoToken().equals(TipoToken.IDENTIFICADOR)){
 
                 if(i == 0){
-                    System.out.printf("ERRO SINTÁTICO NA COLUNA[%d] É NECESSÁRIO INFORMAR O TIPO DO IDENTIFICADOR ANTES DA SUA DECLARAÇÃO!\n", tokens.get(i).getColuna());
+                    System.out.printf("ERRO SINTÁTICO NA COLUNA[%d] É NECESSÁRIO INFORMAR O TIPO DO IDENTIFICADOR ANTES DA SUA DECLARAÇÃO!\n", tokens.get(i).getIndex());
                     break;
                 }
 
                 if(!tokens.get(i - 1).getTipoToken().name().startsWith("TIPO")){
-                    System.out.printf("ERRO SINTÁTICO NA COLUNA[%d] É NECESSÁRIO INFORMAR O TIPO DO IDENTIFICADOR ANTES DA SUA DECLARAÇÃO!\n", tokens.get(i).getColuna());
+                    System.out.printf("ERRO SINTÁTICO NA COLUNA[%d] É NECESSÁRIO INFORMAR O TIPO DO IDENTIFICADOR ANTES DA SUA DECLARAÇÃO!\n", tokens.get(i).getIndex());
                     break;
                 }
             }

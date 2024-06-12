@@ -1,0 +1,2 @@
+integer arroz = 20.3
+boolean arroz > 10.7;
