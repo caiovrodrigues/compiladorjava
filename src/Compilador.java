@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Compilador {
 
@@ -32,17 +33,25 @@ public class Compilador {
 
                 if (isLetra(linha.charAt(i))) {
                     int comecoPalavra = i;
-                    while(i < linha.length() && isLetra(linha.charAt(i))){
+                    while(i < linha.length() && (linha.charAt(i) != ' ' && linha.charAt(i) != ';' && linha.charAt(i) != ',' && linha.charAt(i) != ':' && linha.charAt(i) != '(' && linha.charAt(i) != ')' && linha.charAt(i) != '.')){
                         i++;
                     }
-//                    while (linha.charAt(i) != ' ' || linha.charAt(i) != ';') {
+//                    while(i < linha.length() && (isLetra(linha.charAt(i)) || isNumero(linha.charAt(i)))){
 //                        i++;
 //                    }
+                    String palavra = linha.substring(comecoPalavra, i);
 
-                    gerarToken(linha.substring(comecoPalavra, i), i);
+                    boolean palavraAccepted = Arrays.stream(palavra.split("")).allMatch(letra -> isLetra(letra.charAt(0)) || isNumero(letra.charAt(0)));
+
+                    if(!palavraAccepted){
+                        erroLexico(palavra, comecoPalavra, linhaPos);
+                        break;
+                    }
+
+                    gerarToken(palavra, i);
                 } else if (isSimbolo(linha.charAt(i))) {
                     int start = i;
-                    while (linha.charAt(i) != ' ') {
+                    while (i < linha.length() && isSimbolo(linha.charAt(i))) {
                         i++;
                     }
 
@@ -111,6 +120,10 @@ public class Compilador {
         }
     }
 
+    private void erroLexico(String substring, int index, int linhaPos) {
+        tokenErros.add(new TokenError(substring, TipoToken.ERRO, String.format("Linha [%d] Coluna[%d] palavra mal formada ", index, linhaPos)));
+    }
+
     public boolean isLetra(char letra){
         List<Character> letras = new ArrayList<>(Arrays.asList('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'));
         return letras.contains(letra);
@@ -142,7 +155,16 @@ public class Compilador {
                 tabelaSimbolos.add(newSimbolo);
             }
         }
+    }
 
+    private void mostrarErros(){
+        if(!tokenErros.isEmpty()){
+            System.out.println("\nErros");
+            tokenErros.forEach(System.out::println);
+        }else{
+            System.out.println("\nSEU CÓDIGO NÃO POSSUI ERROS LÉXICOS");
+            analiseSintatica();
+        }
     }
 
     public void analiseSintatica(){
@@ -152,25 +174,25 @@ public class Compilador {
 
         for(int i = 0; i < tokens.size(); i++){
 
-            if(tokens.get(i).getTipoToken().equals(TipoToken.IDENTIFICADOR)){
-
-                if(i == 0){
-                    System.out.printf("ERRO SINTÁTICO NA COLUNA[%d] É NECESSÁRIO INFORMAR O TIPO DO IDENTIFICADOR ANTES DA SUA DECLARAÇÃO!\n", tokens.get(i).getIndex());
-                    break;
-                }
-
-                if(!tokens.get(i - 1).getTipoToken().name().startsWith("TIPO")){
-                    System.out.printf("ERRO SINTÁTICO NA COLUNA[%d] É NECESSÁRIO INFORMAR O TIPO DO IDENTIFICADOR ANTES DA SUA DECLARAÇÃO!\n", tokens.get(i).getIndex());
-                    break;
-                }
-            }
-
-            if(tokens.get(i).getTipoToken().equals(TipoToken.SIMB_ABRE_PAR)){
-                abrePar++;
-            }
-            if(tokens.get(i).getTipoToken().equals(TipoToken.SIMB_FECHA_PAR)){
-                fechaPar++;
-            }
+//            if(tokens.get(i).getTipoToken().equals(TipoToken.IDENTIFICADOR)){
+//
+//                if(i == 0){
+//                    System.out.printf("ERRO SINTÁTICO NA COLUNA[%d] É NECESSÁRIO INFORMAR O TIPO DO IDENTIFICADOR ANTES DA SUA DECLARAÇÃO!\n", tokens.get(i).getIndex());
+//                    break;
+//                }
+//
+//                if(!tokens.get(i - 1).getTipoToken().name().startsWith("TIPO")){
+//                    System.out.printf("ERRO SINTÁTICO NA COLUNA[%d] É NECESSÁRIO INFORMAR O TIPO DO IDENTIFICADOR ANTES DA SUA DECLARAÇÃO!\n", tokens.get(i).getIndex());
+//                    break;
+//                }
+//            }
+//
+//            if(tokens.get(i).getTipoToken().equals(TipoToken.SIMB_ABRE_PAR)){
+//                abrePar++;
+//            }
+//            if(tokens.get(i).getTipoToken().equals(TipoToken.SIMB_FECHA_PAR)){
+//                fechaPar++;
+//            }
         }
 
         if(abrePar != fechaPar){

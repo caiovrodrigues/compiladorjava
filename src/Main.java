@@ -29,6 +29,8 @@ public class Main {
         palavrasReservadas.put("procedure", TipoToken.PALAVRA_CHAVE);
         palavrasReservadas.put("begin", TipoToken.PALAVRA_CHAVE);
         palavrasReservadas.put("end", TipoToken.PALAVRA_CHAVE);
+        palavrasReservadas.put("readln", TipoToken.PALAVRA_CHAVE);
+        palavrasReservadas.put("writeln", TipoToken.PALAVRA_CHAVE);
 
         palavrasReservadas.put("var", TipoToken.DECL_VARIAVEL);
 
@@ -37,7 +39,7 @@ public class Main {
         palavrasReservadas.put("boolean", TipoToken.TIPO_BOOLEAN);
 
         palavrasReservadas.put(":=", TipoToken.SIMB_ATRIBUICAO);
-        palavrasReservadas.put("=", TipoToken.SIMB_ATRIBUICAO);
+        palavrasReservadas.put("=", TipoToken.SIMB_IGUALDADE);
         palavrasReservadas.put(";", TipoToken.SIMB);
         palavrasReservadas.put("(", TipoToken.SIMB_ABRE_PAR);
         palavrasReservadas.put(")", TipoToken.SIMB_FECHA_PAR);

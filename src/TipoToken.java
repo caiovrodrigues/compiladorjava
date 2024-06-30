@@ -6,6 +6,7 @@ public enum TipoToken {
     SIMB_MENOR_IGUAL("símbolo especial"),
     SIMB_MAIOR_IGUAL("símbolo especial"),
     SIMB_MAIOR_QUE("símbolo especial"),
+    SIMB_IGUALDADE("símbolo de igualdade"),
     SIMB_ATRIBUICAO("símbolo especial"),
     SIMB_ABRE_PAR("símbolo especial"),
     SIMB_FECHA_PAR("símbolo especial"),
